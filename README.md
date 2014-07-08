@@ -7,7 +7,12 @@ python script for auto formatting Swift code
 ## Usage
 
 #### auto format a file
-python format.py --file inputfilenaeme.swift --output outputfilename.swift
+```bash
+Usage: 
+--file [FILE] The file to format
+--output [FILE] The file to write the formatted output to
 
+python format.py --file inputfilename.swift --output outputfilename.swift
+```
 
 ### Tests
