@@ -1,0 +1,30 @@
+class test { {{
+                            { string str = "str" }
+        }
+        string str = "teststr"
+        {
+{
+                   }
+        }}
+   {
+        string str = "teststr"
+    }
+}
+@@@@@@@@@@@@@@
+class test {
+    {
+        {
+            {
+                string str = "str"
+            }
+        }
+        string str = "teststr"
+        {
+            {
+            }
+        }
+    }
+    {
+        string str = "teststr"
+    }
+}

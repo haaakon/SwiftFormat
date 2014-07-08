@@ -1,0 +1,9 @@
+class test {{
+let str = "teststr"
+            }}
+@@@@@@@@@@@@@@@@@@@@@@
+class test {
+    {
+        let str = "teststr"
+    }
+}

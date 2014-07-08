@@ -1,0 +1,33 @@
+
+class testclass {
+    let teststring = "teststring"
+    func method1 {
+ var indentedString = "indentedstring"
+                        }
+    func method2 {
+        def m3 {
+                             var teststr = ""
+                                                                 {
+                             var str = ""
+            }
+}
+    var indentedString2 = "indentedString2"
+     } }
+
+@@@
+
+class testclass {
+    let teststring = "teststring"
+    func method1 {
+        var indentedString = "indentedstring"
+    }
+    func method2 {
+        def m3 {
+            var teststr = ""
+            {
+                var str = ""
+            }
+        }
+        var indentedString2 = "indentedString2"
+    }
+}

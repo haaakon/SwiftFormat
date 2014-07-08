@@ -1,0 +1,16 @@
+#define "test.m"
+
+class testclass {
+   string teststring = "teststring"
+  self.lastSuccessBlock = nil;
+                 self.lastErrorBlock = nil;
+}
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#define "test.m"
+
+class testclass {
+    string teststring = "teststring"
+    self.lastSuccessBlock = nil;
+    self.lastErrorBlock = nil;
+}
