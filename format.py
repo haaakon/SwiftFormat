@@ -1,5 +1,6 @@
-import File
+import SourceLine
 import sys
+import copy
 import os
 import argparse
 
@@ -19,6 +20,7 @@ Statement = Enum(('while','for',
                  'IMPORT',
                  "EMPTYLINE",
                  "UNKNOWN"))
+
 Character = Enum(("SPACE"
                             ,"UNKNOWN"))
 
@@ -83,7 +85,7 @@ class FileReader:
         fileString = fileString[:-1]
         return fileString
 
-    def identifyLine(self,line):
+    def identifyLine(self,sourceCodeLine):
         lineArray = line.split(" ")
         firstWord = lineArray[0]
         #print(firstWord)
@@ -98,41 +100,29 @@ class FileReader:
         else:
             self.currentStatement = Statement.UNKNOWN
 
-    def alterAndWriteLine(self,line):
-        # first check if line should be saved anyway
-        alteredLine = ""
-        if self.currentStatement == Statement.EMPTYLINE and self.lastReadStatement == Statement.EMPTYLINE:
-            ks = ""
-        elif self.currentStatement == Statement.EMPTYLINE:
-            alteredLine = line
-        else:
-            alteredLine = self.indentLine(line)
-        return alteredLine
+
     #def updateIndentationLevel(self,line):
         #self.currentIndentationLevel +=indentationLevelIncrease
 
-    def indentLine(self,line):
-        newLine = line
-        indentationLevelDecreaseOrIncrease = line.count('}') + line.count('{')
-        newLine = self.parseKeyWordsInLine(newLine)
-        if indentationLevelDecreaseOrIncrease > 1:
-            newLine = self.addNewLineBeforeBraces(line)
-            #line = "%s - %i - LSPACE: %i whspcaneeded: %i" % (line,self.currentIndentationLevel, leading_spaces,numberOfWhiteSpaceNeeded)
-        #self.currentIndentationLevel += indentationLevelIncrease
-        newLine = self.addOrRemoveWhiteSpace(newLine)
-        return newLine
+
 
     def addOrRemoveWhiteSpace(self,originalLine):
         # se if line needs to be further split up
         originalLine = originalLine.lstrip()
         originalLine = originalLine.rstrip()
+        isComment = False
         lines = originalLine.split("\n")
         newConstructedLine = ""
         for line in lines:
-            indentationLeveDecrease = line.count('}')
             # just strip away all unecessary whitespace
             line = line.rstrip()
             line = line.lstrip()
+
+            if line.startswith("//"):
+                newConstructedLine = newConstructedLine + originalLine + '\n'
+                continue
+
+            indentationLeveDecrease = line.count('}')
             if indentationLeveDecrease > 0:
                 self.currentIndentationLevel -= 1
             numberOfWhiteSpaceNeeded =  (self.numberOfSpacesPerIndentationLevel * self.currentIndentationLevel)
@@ -147,11 +137,12 @@ class FileReader:
         #remove last newline when more strings were connected
         newConstructedLine = newConstructedLine[:-1]
         return newConstructedLine
-
+# when there are multiple brackets on a line, or brackets together with words on a line,adds a new line between them
+    # { var str = ""
     def addNewLineBeforeBraces(self,line):
         brackets = 0
         newLine = ""
-        parsedLine = File.Line()
+        parsedLine = SourceLine.Line()
 
         # go through characters in the line
         for c in line:
@@ -186,7 +177,7 @@ class FileReader:
     def parseKeyWordsInLine(self,parsingLine):
         previousCharacter = ""
         parsedCodeLine = ""
-        parsedLine = File.Line()
+        parsedLine = SourceLine.Line()
         for c in parsingLine:
             if c == " ":
                 parsedLine.identifyKeyWord()
@@ -195,7 +186,6 @@ class FileReader:
                 parsedCodeLine = self.removeUnecessaryWhiteSpaceFromLine(parsedCodeLine,c,previousCharacter)
             else:
                 parsedCodeLine = parsedCodeLine + c
-
             previousCharacter = c
         return parsedCodeLine
 
@@ -213,9 +203,32 @@ class FileReader:
             newString = " %s" % newString
         return newString
 
-    def parseLine(self,line):
-        self.identifyLine(line)
-        parsedLine = self.alterAndWriteLine(line)
+  def indentLine(self,sourceCodeLine):
+        newLine = sourceCodeLine.content
+        indentationLevelDecreaseOrIncrease = sourceCodeLine.numberOfLeftBraces() + sourceCodeLine.numberOfRightBraces()
+        newLine = self.parseKeyWordsInLine(newLine)
+        if indentationLevelDecreaseOrIncrease > 1:
+            newLine = self.addNewLineBeforeBraces(line)
+            #line = "%s - %i - LSPACE: %i whspcaneeded: %i" % (line,self.currentIndentationLevel, leading_spaces,numberOfWhiteSpaceNeeded)
+        #self.currentIndentationLevel += indentationLevelIncrease
+        newLine = self.addOrRemoveWhiteSpace(newLine)
+        return newLine
+
+    def alterAndWriteLine(self,sourceCodeLine):
+
+        # first check if line should be saved anyway
+        alteredLine = ""
+        if self.currentStatement == Statement.EMPTYLINE and self.lastReadStatement == Statement.EMPTYLINE:
+            ks = ""
+        elif self.currentStatement == Statement.EMPTYLINE:
+            ks = ''
+        else:
+            self.indentLine(sourceCodeLine)
+        return sourceCodeLine
+
+    def parseLine(self,rawLine):
+        sourceCodeLine = SourceLine.Line(rawLine)
+        parsedLine = self.alterAndWriteLine(sourceCodeLine)
         self.lineNumber +=1
         self.lastReadStatement = self.currentStatement
         return parsedLine
