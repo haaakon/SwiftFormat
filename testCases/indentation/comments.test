@@ -6,21 +6,12 @@ class DownloadManager {
 
     func startDownloading() {
 
-        // NSURLRequest *theRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.apple.com"]
-        // cachePolicy:NSURLRequestUseProtocolCachePolicy
-        // timeoutInterval:60.0];
+        // let timeoutInterval = 60.0
+   // let downloadInterval = 60.0
         //
-        // // Create the connection with the request and start loading the data.
-        // NSURLDownload *theDownload = [[NSURLDownload alloc] initWithRequest:theRequest
-        // delegate:self];
-        // if (theDownload) {
-            // // Set the destination file.
-            // [theDownload setDestination:@"/tmp" allowOverwrite:YES];
-        // } else {{{{{{{}}}}}
 
         // // inform the user that the download failed.
-            // } } } } }
-
+    // }
 }
 }
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -32,20 +23,11 @@ class DownloadManager {
 
     func startDownloading() {
 
-        // NSURLRequest *theRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.apple.com"]
-        // cachePolicy:NSURLRequestUseProtocolCachePolicy
-        // timeoutInterval:60.0];
+        // let timeoutInterval = 60.0
+   // let downloadInterval = 60.0
         //
-        // // Create the connection with the request and start loading the data.
-        // NSURLDownload *theDownload = [[NSURLDownload alloc] initWithRequest:theRequest
-        // delegate:self];
-        // if (theDownload) {
-            // // Set the destination file.
-            // [theDownload setDestination:@"/tmp" allowOverwrite:YES];
-        // } else
 
         // // inform the user that the download failed.
     // }
-
     }
 }
