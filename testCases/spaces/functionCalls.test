@@ -1,0 +1,19 @@
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    var managedObjectModel: NSManagedObjectModel {
+        if !_managedObjectModel {
+            let modelURL = NSBundle.mainBundle().URLForResource("AstronomyPicture", withExtension: "momd")
+            _managedObjectModel = NSManagedObjectModel(contentsOfURL: modelURL)
+        }
+        return _managedObjectModel!
+    }
+}
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    var managedObjectModel: NSManagedObjectModel {
+        if !_managedObjectModel {
+            let modelURL = NSBundle.mainBundle().URLForResource("AstronomyPicture", withExtension: "momd")
+            _managedObjectModel = NSManagedObjectModel(contentsOfURL: modelURL)
+        }
+        return _managedObjectModel!
+    }
+}

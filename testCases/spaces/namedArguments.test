@@ -1,0 +1,15 @@
+{
+    let groundTexture = SKTexture(imageNamed:"ground texture")
+    let oceanTexture = SKTexture(imageNamed:   "ocean-texture.jpg"  )
+    let labelNode = SKLabelNode(fontNamed:"MarkerFelt-Wide" )
+    self.removeActionForKey("action key to be removed" )
+    var alertController = UIAlertController(title:"ActionSheet" , message:"Message",preferredStyle:  UIAlertControllerStyle.ActionSheet  )
+}
+@@@@@@@@@@@@@
+{
+    let groundTexture = SKTexture(imageNamed: "ground texture")
+    let oceanTexture = SKTexture(imageNamed: "ocean-texture.jpg")
+    let labelNode = SKLabelNode(fontNamed: "MarkerFelt-Wide")
+    self.removeActionForKey("action key to be removed")
+    var alertController = UIAlertController(title: "ActionSheet", message: "Message", preferredStyle: UIAlertControllerStyle.ActionSheet)
+}

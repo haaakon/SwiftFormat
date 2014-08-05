@@ -1,0 +1,13 @@
+var sorted6 = mySort(numbers){
+    (num1:Int,num2:Int) -> Bool in
+
+    return num1 > num2
+
+    }
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+var sorted6 = mySort(numbers){
+    (num1: Int,num2: Int) -> Bool in
+
+    return num1 > num2
+
+    }
