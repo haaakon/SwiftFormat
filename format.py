@@ -38,6 +38,9 @@ class FileReader:
     numberOfSpacesPerIndentationLevel = 4
     lineNumber = 1
 
+    isInsideClosureVariable = False
+    isInsideMultilineComment = False
+    sourceCodeLineObjects = []
     rawDataFromFile = ""
 
     def reset(self):
@@ -81,7 +84,7 @@ class FileReader:
         fileString = ""
         for line in sourceLines:
             parsedLine = self.parseLine(line)
-            fileString = "%s%s\n" % (fileString, parsedLine)
+            fileString = "%s%s\n" % (fileString, parsedLine.formattedContent)
         fileString = fileString[:-1]
         return fileString
 
@@ -100,16 +103,16 @@ class FileReader:
         else:
             self.currentStatement = Statement.UNKNOWN
 
+    def addLeadingSpacesToString(self,numberOfLeadingSpaces,string):
+        newString = string
+        for i in range(0,numberOfLeadingSpaces):
+            newString = " %s" % newString
+        return newString
 
-    #def updateIndentationLevel(self,line):
-        #self.currentIndentationLevel +=indentationLevelIncrease
-
-
-
-    def addOrRemoveWhiteSpace(self,originalLine):
+    def addOrRemoveWhiteSpace(self,sourceCodeLine):
         # se if line needs to be further split up
-        originalLine = originalLine.lstrip()
-        originalLine = originalLine.rstrip()
+        originalLine = sourceCodeLine.formattedContent.lstrip()
+        originalLine = sourceCodeLine.formattedContent.rstrip()
         isComment = False
         lines = originalLine.split("\n")
         newConstructedLine = ""
@@ -117,16 +120,38 @@ class FileReader:
             # just strip away all unecessary whitespace
             line = line.rstrip()
             line = line.lstrip()
-
-            if line.startswith("//"):
+            if sourceCodeLine.lineType == SourceLine.LineType.comment:
+                sourceCodeLine.formattedContent = originalLine
                 newConstructedLine = newConstructedLine + originalLine + '\n'
+                self.sourceCodeLineObjects.append(sourceCodeLine)
+                continue
+            if not line:
+                sourceCodeLine.formattedContent = originalLine
+                self.sourceCodeLineObjects.append(sourceCodeLine)
+                newConstructedLine = newConstructedLine + originalLine + '\n'
+                continue
+            if "*/" in line:
+                self.isInsideMultilineComment = False
+            if "/*" in line or self.isInsideMultilineComment:
+                sourceCodeLine.formattedContent = originalLine
+                self.isInsideMultilineComment = True
+                newConstructedLine = newConstructedLine + originalLine + '\n'
+                sourceCodeLine.lineType = SourceLine.LineType.comment
+                self.sourceCodeLineObjects.append(sourceCodeLine)
                 continue
 
             indentationLeveDecrease = line.count('}')
             if indentationLeveDecrease > 0:
                 self.currentIndentationLevel -= 1
             numberOfWhiteSpaceNeeded =  (self.numberOfSpacesPerIndentationLevel * self.currentIndentationLevel)
+            if sourceCodeLine.lineType == SourceLine.LineType.closureToVariable:
+                self.isInsideClosureVariable = True
+            if sourceCodeLine.lineType == SourceLine.LineType.endOfClosure and self.isInsideClosureVariable:
+                numberOfWhiteSpaceNeeded =+ self.numberOfSpacesPerIndentationLevel
+                self.isInsideClosureVariable = False
+
             line = self.addLeadingSpacesToString(numberOfWhiteSpaceNeeded,line)
+            sourceCodeLine.formattedContent = line
             newConstructedLine = newConstructedLine + line + '\n'
             indentationLevelIncrease = line.count('{')
             if indentationLevelIncrease > 0 and len(lines) == 1:
@@ -134,104 +159,37 @@ class FileReader:
                 newConstructedLine = newConstructedLine + ""
             elif line.count('{') > 0:
                 self.currentIndentationLevel += 1
+            self.sourceCodeLineObjects.append(sourceCodeLine)
         #remove last newline when more strings were connected
         newConstructedLine = newConstructedLine[:-1]
         return newConstructedLine
+
 # when there are multiple brackets on a line, or brackets together with words on a line,adds a new line between them
     # { var str = ""
-    def addNewLineBeforeBraces(self,line):
-        brackets = 0
-        newLine = ""
-        parsedLine = SourceLine.Line()
 
-        # go through characters in the line
-        for c in line:
-            if c == "}":
-                #first bracket on a line should not be set to next line
-                if brackets == 0:
-                    newLine = newLine + c
-                else:
-                    newLine = newLine + '\n' + c
-                brackets += 1
-                parsedLine.containsEndCurly += 1
-            elif c == "{":
-                if brackets == 0:
-                    newLine = newLine + c
-                else:
-                    newLine = newLine + '\n' + c
-                    parsedLine.containsStartCurly -= 1
-                brackets += 1
-                parsedLine.containsStartCurly += 1
-            else:
-                if c == " ":
-                    parsedLine.identifyKeyWord()
-                    # do something with keyword ?
-                    parsedLine.keyWord = ""
-                else:
-                    if parsedLine.containsStartCurly > 0:
-                        newLine = newLine + '\n'
-                        parsedLine.containsStartCurly -= 1
-                newLine = newLine + c
-        return newLine
 
-    def parseKeyWordsInLine(self,parsingLine):
-        previousCharacter = ""
-        parsedCodeLine = ""
-        parsedLine = SourceLine.Line()
-        for c in parsingLine:
-            if c == " ":
-                parsedLine.identifyKeyWord()
-                # do something with keyword ?
-                parsedLine.keyWord = ""
-                parsedCodeLine = self.removeUnecessaryWhiteSpaceFromLine(parsedCodeLine,c,previousCharacter)
-            else:
-                parsedCodeLine = parsedCodeLine + c
-            previousCharacter = c
-        return parsedCodeLine
-
-    def removeUnecessaryWhiteSpaceFromLine(self,currentParsedLine,currentCharacter,previousCharacter):
-        noUnecessaryWhiteSpace = ""
-        if previousCharacter == " " and currentCharacter == " ":
-            noUnecessaryWhiteSpace = currentParsedLine
-        else:
-            noUnecessaryWhiteSpace = currentParsedLine + currentCharacter
-        return noUnecessaryWhiteSpace
-
-    def addLeadingSpacesToString(self,numberOfLeadingSpaces,string):
-        newString = string
-        for i in range(0,numberOfLeadingSpaces):
-            newString = " %s" % newString
-        return newString
-
-  def indentLine(self,sourceCodeLine):
-        newLine = sourceCodeLine.content
+    def indentLine(self,sourceCodeLine):
         indentationLevelDecreaseOrIncrease = sourceCodeLine.numberOfLeftBraces() + sourceCodeLine.numberOfRightBraces()
-        newLine = self.parseKeyWordsInLine(newLine)
+
+        if sourceCodeLine.lineType != SourceLine.LineType.comment:
+            sourceCodeLine.removeDoubleWhitespace()
+        newLine = ""
         if indentationLevelDecreaseOrIncrease > 1:
-            newLine = self.addNewLineBeforeBraces(line)
-            #line = "%s - %i - LSPACE: %i whspcaneeded: %i" % (line,self.currentIndentationLevel, leading_spaces,numberOfWhiteSpaceNeeded)
-        #self.currentIndentationLevel += indentationLevelIncrease
-        newLine = self.addOrRemoveWhiteSpace(newLine)
-        return newLine
-
-    def alterAndWriteLine(self,sourceCodeLine):
-
-        # first check if line should be saved anyway
-        alteredLine = ""
-        if self.currentStatement == Statement.EMPTYLINE and self.lastReadStatement == Statement.EMPTYLINE:
-            ks = ""
-        elif self.currentStatement == Statement.EMPTYLINE:
-            ks = ''
+            sourceCodeLine.splitToMultipleLines()
+        if sourceCodeLine.lineType != SourceLine.LineType.comment:
+            newLine = self.addOrRemoveWhiteSpace(sourceCodeLine)
         else:
-            self.indentLine(sourceCodeLine)
-        return sourceCodeLine
+            newLine =  sourceCodeLine.formattedContent
+        sourceCodeLine.formattedContent = newLine
 
     def parseLine(self,rawLine):
         sourceCodeLine = SourceLine.Line(rawLine)
-        parsedLine = self.alterAndWriteLine(sourceCodeLine)
+        self.indentLine(sourceCodeLine)
+        arr = self.sourceCodeLineObjects
+        sourceCodeLine.fixSpacingBetweenKeywords()
         self.lineNumber +=1
         self.lastReadStatement = self.currentStatement
-        return parsedLine
+        return sourceCodeLine
 
 def main(argv):
     parser = argparse.ArgumentParser()
@@ -256,5 +214,3 @@ def openFile(fileName):
 
 
 
-if __name__ == "__main__":
-   main(sys.argv[1:])
