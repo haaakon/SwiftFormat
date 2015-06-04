@@ -29,7 +29,8 @@ TEST OK for python/SwiftFormatter/testCases/indentation/twoCurly.test
 ```
 ####Test format
 Put source code to be formatted above @@@, and under put the correct way it should be formatted after running the format script.
-```python
+
+```swift
 class test() {{var str = "teststr" }}
 @@@
 class test() {
