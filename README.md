@@ -1,8 +1,8 @@
 SwiftFormatter
 ==============
 
-python script for auto formatting Swift code
-
+Python script for auto formatting Swift code, similar to Clang format.
+ 
 
 ## Usage
 
@@ -39,3 +39,13 @@ class test() {
     }
 }
 ```
+
+### TODO
+- Add alot more formatting rules
+- be able to turn rules on/off
+- add a plugin for xcode
+
+## License
+MIT
+### Author 
+Håkon Bogen hakon.bogen@gmail.com
