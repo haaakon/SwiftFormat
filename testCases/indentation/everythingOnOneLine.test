@@ -1,6 +1,6 @@
-class test {{var str = "teststr" }}
+class test() {{var str = "teststr" }}
 @@@
-class test {
+class test() {
     {
         var str = "teststr"
     }
