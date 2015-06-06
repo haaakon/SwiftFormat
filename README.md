@@ -22,7 +22,7 @@ python format.py --file inputfilename.swift --output outputfilename.swift
 
 All contributions are more than welcome, suggestions on how to move forward is appreciated.
 
-####Test format
+### Test format
 Put source code to be formatted above @@@, and under put the correct way it should be formatted after running the format script.
 
 ```swift
@@ -35,10 +35,9 @@ class test() {
 }
 ```
 
-### Tests
 For each rule thats added, add a test file that shows how it should format correctly. The test checks that all files are formatted correctly as shown under the @@@ in their file.
 
-####Run tests
+#### Run tests
 ```bash
 python tests.py
 TEST OK for python/SwiftFormatter/testCases/indentation/indentTest.test
