@@ -1,4 +1,4 @@
-SwiftFormatter
+SwiftFormat
 ==============
 
 Python script for auto formatting Swift code, similar to Clang format.
