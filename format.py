@@ -88,21 +88,6 @@ class FileReader:
         fileString = fileString[:-1]
         return fileString
 
-    def identifyLine(self,sourceCodeLine):
-        lineArray = line.split(" ")
-        firstWord = lineArray[0]
-        #print(firstWord)
-        if firstWord == "#import":
-            self.currentStatement = Statement.IMPORT
-        if firstWord.isspace():
-            noWhiteSpace = line.lstrip()
-            if len(noWhiteSpace) == 0:
-                self.currentStatement = Statement.EMPTYLINE
-            else:
-                self.identifyLine(noWhiteSpace)
-        else:
-            self.currentStatement = Statement.UNKNOWN
-
     def addLeadingSpacesToString(self,numberOfLeadingSpaces,string):
         newString = string
         for i in range(0,numberOfLeadingSpaces):
@@ -111,6 +96,8 @@ class FileReader:
 
     def addOrRemoveWhiteSpace(self,sourceCodeLine):
         # se if line needs to be further split up
+        unalteredline = copy.copy(sourceCodeLine.formattedContent)
+
         originalLine = sourceCodeLine.formattedContent.lstrip()
         originalLine = sourceCodeLine.formattedContent.rstrip()
         isComment = False
@@ -120,6 +107,7 @@ class FileReader:
             # just strip away all unecessary whitespace
             line = line.rstrip()
             line = line.lstrip()
+
             if sourceCodeLine.lineType == SourceLine.LineType.comment:
                 sourceCodeLine.formattedContent = originalLine
                 newConstructedLine = newConstructedLine + originalLine + '\n'
@@ -135,9 +123,13 @@ class FileReader:
             if "/*" in line or self.isInsideMultilineComment:
                 sourceCodeLine.formattedContent = originalLine
                 self.isInsideMultilineComment = True
-                newConstructedLine = newConstructedLine + originalLine + '\n'
+                newConstructedLine = newConstructedLine + unalteredline + '\n'
                 sourceCodeLine.lineType = SourceLine.LineType.comment
+                numberOfWhiteSpaceNeeded =  (self.numberOfSpacesPerIndentationLevel * self.currentIndentationLevel)
+                line = self.addLeadingSpacesToString(numberOfWhiteSpaceNeeded,line)
+                sourceCodeLine.formattedContent = line
                 self.sourceCodeLineObjects.append(sourceCodeLine)
+
                 continue
 
             indentationLeveDecrease = line.count('}')
@@ -162,7 +154,8 @@ class FileReader:
             self.sourceCodeLineObjects.append(sourceCodeLine)
         #remove last newline when more strings were connected
         newConstructedLine = newConstructedLine[:-1]
-        return newConstructedLine
+        sourceCodeLine.formattedContent = newConstructedLine
+        return sourceCodeLine
 
 # when there are multiple brackets on a line, or brackets together with words on a line,adds a new line between them
     # { var str = ""
@@ -177,16 +170,16 @@ class FileReader:
         if indentationLevelDecreaseOrIncrease > 1:
             sourceCodeLine.splitToMultipleLines()
         if sourceCodeLine.lineType != SourceLine.LineType.comment:
-            newLine = self.addOrRemoveWhiteSpace(sourceCodeLine)
+            sourceCodeLine = self.addOrRemoveWhiteSpace(sourceCodeLine)
         else:
             newLine =  sourceCodeLine.formattedContent
-        sourceCodeLine.formattedContent = newLine
+        return sourceCodeLine
 
     def parseLine(self,rawLine):
         sourceCodeLine = SourceLine.Line(rawLine)
-        self.indentLine(sourceCodeLine)
-        arr = self.sourceCodeLineObjects
-        sourceCodeLine.fixSpacingBetweenKeywords()
+        sourceCodeLine = self.indentLine(sourceCodeLine)
+        if sourceCodeLine.lineType != SourceLine.LineType.comment:
+            sourceCodeLine.fixSpacingBetweenKeywords()
         self.lineNumber +=1
         self.lastReadStatement = self.currentStatement
         return sourceCodeLine
@@ -202,9 +195,11 @@ def main(argv):
             writeToFile.write(parsedText)
             writeToFile.close()
 
+
 def defineArguments(parser):
     parser.add_argument('--file', help='the file to auto format')
     parser.add_argument('--output', help='name of file to output formatted source code to')
+
 
 def openFile(fileName):
     with open(fileName, 'r') as fin:
@@ -212,5 +207,6 @@ def openFile(fileName):
         formattedSourceCode = fileReader.formattedSource()
         return formattedSourceCode
 
-
+if __name__ == '__main__':
+    main(sys.argv[1:])
 
