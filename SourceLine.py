@@ -107,9 +107,6 @@ class Line:
         parsedCodeLine = ""
         for c in self.formattedContent:
             if c == " ":
-                #parsedLine.identifyKeyWord()
-                # do something with keyword ?
-                #parsedLine.keyWord = ""
                 parsedCodeLine = self.removeUnecessaryWhiteSpaceFromLine(parsedCodeLine,c,previousCharacter)
             else:
                 parsedCodeLine = parsedCodeLine + c
