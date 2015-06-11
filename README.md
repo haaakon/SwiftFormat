@@ -3,6 +3,7 @@ SwiftFormat
 
 Python script for auto formatting Swift code, similar to Clang format.
  
+ Current status: Gonna rewrite this to Swift.
 
 ## Usage
 
